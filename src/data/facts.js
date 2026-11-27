@@ -41,20 +41,40 @@ export const HURDLES = {
 // Aufwand pro Jahr, Büros mit 2–4 Personen (Median, BAK Strukturbefragung 2024)
 export const YEARLY_EFFORT = { hours: '240 Std.', cost: '11.000 €' };
 
-// Beispielrechnung für den Case (fiktiver Wettbewerb)
-// Honorar: HOAI 2021 § 35, Honorarzone III, Basissatz, 5,0 Mio € anrechenbare Kosten
-// = 478.207 € für LPH 1–9; LPH 2–9 = 98 % ≈ 468.600 €. Orientierungswert, netto.
-export const CASE_MATH = {
-  prizeMoney: { value: '72.000 €', label: 'Wettbewerbssumme laut Auslobung (fiktiv) – RPW: mind. Honorar der Vorplanung', verified: true },
-  fee: {
-    value: 'ca. 470.000 €',
-    label: 'Honorar-Orientierung LPH 2–9 nach HOAI 2021 (Zone III, Basissatz, 5 Mio € anrechenbare Kosten, netto)',
-    verified: true,
-  },
-  effort: { value: 'ca. 200 Std.', label: 'Aufwand für die Wettbewerbsarbeit (Schätzung für 3 Personen)', verified: true },
-  reference: {
-    value: 'Erste Schule',
-    label: 'als gebaute Referenz – öffnet künftig Verfahren mit Referenzhürde',
-    verified: true,
-  },
+// Kernthese: Kleine Büros gewinnen fast so oft wie der Durchschnitt – nehmen aber selten teil.
+export const POTENTIAL = {
+  successSmall: '32 %', // Erfolgsquote Büros 2–4 Personen
+  successAll: '33 %', // Erfolgsquote alle teilnehmenden Büros
+  participationSmall: 11, // % der Büros mit 2–4 Personen, die 2023 teilgenommen haben
+  participationLarge: 57, // % der Büros ab 10 Personen
+  aiSmall: 19,
+  aiLarge: 67,
+  source: 'BAK Strukturbefragung 2024 (Berichtsjahr 2023) · BAK Berufspolitische Befragung 2025',
 };
+
+// Case: Erweiterung Grundschule (fiktiv), offenes Verfahren, ca. 45 Arbeiten
+// Honorar: HOAI 2021 § 35, Zone III, Basissatz, 5,0 Mio € anrechenbare Kosten = 478.207 € (LPH 1–9),
+// LPH 2–9 = 98 % ≈ 470.000 €, netto, Orientierungswert.
+// Preisgeld: Wettbewerbssumme 72.000 € (fiktiv), 1. Preis 40 % nach RPW-Beispielverteilung.
+export const CASE_MATH = {
+  fee: { value: 'ca. 470.000 €', label: 'Honorar-Orientierung Folgeauftrag LPH 2–9 (HOAI 2021, Zone III, 5 Mio € anrechenbar, netto)' },
+  prize: { value: 'ca. 29.000 €', label: '1. Preis (40 % der Wettbewerbssumme von 72.000 €, RPW-Beispielverteilung)' },
+};
+
+// Jahres-Hochrechnung (fiktives 3-Personen-Büro). Rechenweg:
+//   Chance auf mind. einen Preis/Jahr = 1 − (1 − Chance je Teilnahme) ^ Teilnahmen
+// Quellen/Typen: participations.before = BAK 2024 (Ø 2,48 bei 2–4 Personen),
+// chance.before = Rechnung (4 Preisränge ÷ ca. 45 Arbeiten), alle übrigen Werte = Annahmen (werden im Pilot gemessen).
+export const YEAR = {
+  rate: 70, // interner Stundensatz €/Std. (Annahme)
+  before: { screened: 10, hoursPer: 8, participations: 2.5, chance: 0.09 },
+  after: { screened: 40, hoursPer: 1, participations: 5, chance: 0.13 },
+};
+export const atLeastOne = (p, n) => 1 - Math.pow(1 - p, n);
+
+// Einführungspreise (Stand Pilot, nicht validiert), netto pro Monat
+export const PRICING = [
+  { key: 'solo', price: 39, users: 1, featured: false },
+  { key: 'buero', price: 89, users: 5, featured: true },
+  { key: 'team', price: 169, users: 12, featured: false },
+];

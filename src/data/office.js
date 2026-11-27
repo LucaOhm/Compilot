@@ -32,9 +32,9 @@ export const OFFICE = {
   founded: 2022,
   employees: 3,
   team: [
-    { id: 'jk', name: 'Johanna Kranich', role: 'Gründerin, Architektin' },
-    { id: 'ms', name: 'Malik Sommer', role: 'Gründer, Architekt' },
-    { id: 'lp', name: 'Lea Pfister', role: 'Architektin' },
+    { id: 'jk', name: 'Johanna Kranich', role: 'Gründerin, Architektin', roleEn: 'Founder, architect' },
+    { id: 'ms', name: 'Malik Sommer', role: 'Gründer, Architekt', roleEn: 'Founder, architect' },
+    { id: 'lp', name: 'Lea Pfister', role: 'Architektin', roleEn: 'Architect' },
   ],
   // Eignungsdaten, die bei VgV-Verfahren geprüft werden (fiktiv)
   revenue: 0.32, // Mio € Jahresumsatz

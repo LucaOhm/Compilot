@@ -1,10 +1,10 @@
 name: Deploy to GitHub Pages
 
-# Läuft NUR, wenn es in GitHub unter „Actions“ manuell gestartet wird.
-# Für automatisches Veröffentlichen bei jedem Push hier ergänzen:
-#   push:
-#     branches: [main]
+# Veröffentlicht die Seite automatisch bei jedem Push auf main
+# (und manuell über Actions → Run workflow).
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:

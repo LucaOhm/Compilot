@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useRoute } from './lib/router.jsx';
 import { DemoProvider } from './lib/store.jsx';
+import { LangProvider } from './lib/i18n.jsx';
 import Landing from './landing/Landing.jsx';
 import DemoApp from './demo/DemoApp.jsx';
 import Legal from './pages/Legal.jsx';
@@ -19,5 +20,9 @@ export default function App() {
   else if (path === '/datenschutz') page = <Legal kind="datenschutz" />;
   else page = <Landing />;
 
-  return <DemoProvider>{page}</DemoProvider>;
+  return (
+    <LangProvider>
+      <DemoProvider>{page}</DemoProvider>
+    </LangProvider>
+  );
 }

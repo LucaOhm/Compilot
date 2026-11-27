@@ -128,13 +128,35 @@ export function evaluate(comp, office, weights, statuses = {}) {
     criteria,
     weights: w,
     knockout,
-    chance: { index: chance, label: chanceLabel(chance), factors: chanceFactors },
+    chance: { index: chance, label: chanceLabel(chance), factors: chanceFactors, range: chanceRange(comp, chance, knockout) },
     capacity: { ...cap, availableHours: round(availableHours), share: round(capacityRatio * 100), weeks: round(daysToWork / 7) },
     references: refs,
     goals,
     reasons: buildReasons(ctx),
     pros: buildPros(ctx),
     cons: buildCons(ctx),
+  };
+}
+
+/**
+ * Illustrative Chancen-Spanne in %. Rechenweg:
+ *   Basisrate = Preisränge ÷ erwartete Teilnehmende
+ *   Profil-Faktor = 0,6 + Chancen-Index/100 × 1,2  (0,6 – 1,8)
+ *   Spanne = Basisrate × Profil-Faktor ± 15 %
+ * Keine Statistik, sondern eine nachvollziehbare Schätzung.
+ */
+export function chanceRange(comp, index, knockout) {
+  const slots = comp.procedure === 'vgv' || comp.procedure === 'mehrfach' ? 1 : comp.procedure === 'einladung' ? 2 : 4;
+  const base = Math.min(1, slots / Math.max(1, comp.participants));
+  const factor = 0.6 + (index / 100) * 1.2;
+  const mid = knockout ? 0 : Math.min(0.6, base * factor);
+  return {
+    slots,
+    base: Math.round(base * 1000) / 10,
+    factor: Math.round(factor * 100) / 100,
+    low: Math.round(mid * 0.85 * 100),
+    high: Math.round(mid * 1.15 * 100),
+    slotLabel: slots === 1 ? 'Auftrag' : slots === 2 ? 'Preise' : 'Preise und Anerkennungen',
   };
 }
 
@@ -145,9 +167,9 @@ export function chanceLabel(v) {
 }
 
 export const LEVELS = {
-  hoch: { label: 'Sehr interessant', tone: 'accent', action: 'Teilnahme empfohlen' },
-  mittel: { label: 'Interessant', tone: 'warn', action: 'Teilnahme prüfen' },
-  gering: { label: 'Eher nicht geeignet', tone: 'muted', action: 'Teilnahme nicht empfohlen' },
+  hoch: { label: 'Hoher Fit', tone: 'accent', action: 'Hohe Passung zu Ihrem Profil' },
+  mittel: { label: 'Mittlerer Fit', tone: 'warn', action: 'Passung mit Einschränkungen' },
+  gering: { label: 'Geringer Fit', tone: 'muted', action: 'Geringe Passung zu Ihrem Profil' },
 };
 
 // ── Begründungstexte aus den konkreten Daten ─────────────────
@@ -164,37 +186,37 @@ function buildReasons(ctx) {
   const best = refs[0];
   if (criteria.fachlich >= 80 && best?.match >= 50) {
     out.push(
-      `Der Wettbewerb passt sehr gut zu euren Referenzen im Bereich ${typeLabel} – besonders zu „${best.ref.title}“ (${best.ref.year}).`
+      `Der Wettbewerb passt sehr gut zu Ihren Referenzen im Bereich ${typeLabel} – besonders zu „${best.ref.title}“ (${best.ref.year}).`
     );
   } else if (criteria.fachlich >= 62) {
     out.push(
-      `Fachlich passt die Aufgabe zu eurem Profil${best?.match >= 40 ? `; als Referenz eignet sich vor allem „${best.ref.title}“` : ''}.`
+      `Fachlich passt die Aufgabe zu Ihrem Profil${best?.match >= 40 ? `; als Referenz eignet sich vor allem „${best.ref.title}“` : ''}.`
     );
   } else {
-    out.push(`Fachlich liegt die Aufgabe (${typeLabel}) außerhalb eurer Schwerpunkte.`);
+    out.push(`Fachlich liegt die Aufgabe (${typeLabel}) außerhalb Ihrer Schwerpunkte.`);
   }
 
   if (comp.budget != null && comp.budget > office.sizeRange.max) {
     out.push(
-      `Mit rund ${fmtInt(comp.budget)} Mio € Baukosten liegt das Projekt deutlich über eurer bevorzugten Größe (bis ${office.sizeRange.max} Mio €).`
+      `Mit rund ${fmtInt(comp.budget)} Mio € Baukosten liegt das Projekt deutlich über Ihrer bevorzugten Größe (bis ${office.sizeRange.max} Mio €).`
     );
   }
 
-  if (criteria.region >= 90) out.push(`Die Region entspricht euren Präferenzen – ${comp.city} ist gut vom Büro aus erreichbar.`);
+  if (criteria.region >= 90) out.push(`Die Region entspricht Ihren Präferenzen – ${comp.city} ist gut vom Büro aus erreichbar.`);
   else if (criteria.region <= 40)
-    out.push(`${comp.city} liegt außerhalb eurer bevorzugten Regionen; Ortstermine und Kolloquien bedeuten zusätzlichen Reiseaufwand.`);
+    out.push(`${comp.city} liegt außerhalb Ihrer bevorzugten Regionen; Ortstermine und Kolloquien bedeuten zusätzlichen Reiseaufwand.`);
 
   const pct = round(capacityRatio * 100);
   if (criteria.aufwand < 45) {
     const share =
       pct >= 100
-        ? `übersteigt eure freie Wettbewerbskapazität bis zur Abgabe (ca. ${fmtInt(round(ctx.availableHours))} Std.)`
-        : `bindet etwa ${pct} % eurer freien Wettbewerbskapazität bis zur Abgabe`;
+        ? `übersteigt Ihre freie Wettbewerbskapazität bis zur Abgabe (ca. ${fmtInt(round(ctx.availableHours))} Std.)`
+        : `bindet etwa ${pct} % Ihrer freien Wettbewerbskapazität bis zur Abgabe`;
     out.push(
-      `Der geschätzte Aufwand ist mit rund ${fmtInt(comp.effortHours)} Stunden hoch und ${share}. Eine Teilnahme ist nur sinnvoll, wenn ihr diese Kapazität freihalten könnt.`
+      `Der geschätzte Aufwand ist mit rund ${fmtInt(comp.effortHours)} Stunden hoch und ${share}. Eine Teilnahme ist nur sinnvoll, wenn Sie diese Kapazität freihalten können.`
     );
   } else if (criteria.aufwand >= 72) {
-    out.push(`Der Aufwand ist mit rund ${fmtInt(comp.effortHours)} Stunden überschaubar und gut mit eurer aktuellen Auslastung vereinbar.`);
+    out.push(`Der Aufwand ist mit rund ${fmtInt(comp.effortHours)} Stunden überschaubar und gut mit Ihrer aktuellen Auslastung vereinbar.`);
   }
 
   if (comp.participants >= 40) {
@@ -207,7 +229,7 @@ function buildReasons(ctx) {
   if (comp.followUp >= 0.9 && !knockout) out.push(`${comp.followUpText} – wirtschaftlich attraktiv.`);
 
   if (goals.length && !knockout) {
-    out.push(`Strategisch zahlt das Projekt auf euer Ziel „${office.strategicGoalLabels[goals[0]]}“ ein.`);
+    out.push(`Strategisch zahlt das Projekt auf Ihr Ziel „${office.strategicGoalLabels[goals[0]]}“ ein.`);
   }
 
   if (comp.eligibility?.status === 'risk') out.push(`Achtung: ${comp.eligibility.note}`);

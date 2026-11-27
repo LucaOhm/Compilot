@@ -7,7 +7,7 @@ import { OFFICE } from '../data/office.js';
 import { DEFAULT_WEIGHTS } from '../data/criteria.js';
 import { evaluateAll } from './scoring.js';
 
-const KEY = 'compilot-demo-v2';
+const KEY = 'compilot-demo-v3';
 
 const initialState = () => ({
   weights: { ...DEFAULT_WEIGHTS },
@@ -16,7 +16,8 @@ const initialState = () => ({
     'kita-erding': { refs: ['r2'], checks: { 'req-0': true, 'doc-0': true }, team: ['ms'] },
   },
   analyzed: { 'kita-erding': true },
-  guideDismissed: false,
+  introDone: false,
+  votes: {}, // { [wettbewerbId]: 'vorbereitung' | 'gemerkt' | 'verworfen' } – Ihre Stimme
 });
 
 function load() {
@@ -58,7 +59,18 @@ export function DemoProvider({ children }) {
   const setWeights = useCallback((weights) => setState((s) => ({ ...s, weights: { ...weights } })), []);
   const setStatus = useCallback((id, status) => setState((s) => ({ ...s, statuses: { ...s.statuses, [id]: status } })), []);
   const markAnalyzed = useCallback((id) => setState((s) => ({ ...s, analyzed: { ...s.analyzed, [id]: true } })), []);
-  const dismissGuide = useCallback(() => setState((s) => ({ ...s, guideDismissed: true })), []);
+  const setIntroDone = useCallback((v = true) => setState((s) => ({ ...s, introDone: v })), []);
+  // Ihre Stimme = Entscheidung des Büros: setzt zugleich den Status in der Pipeline
+  const decide = useCallback(
+    (id, choice) =>
+      setState((s) => ({
+        ...s,
+        votes: { ...s.votes, [id]: choice },
+        statuses: { ...s.statuses, [id]: choice || 'neu' },
+        analyzed: { ...s.analyzed, [id]: true },
+      })),
+    []
+  );
   const updatePrep = useCallback(
     (id, fn) =>
       setState((s) => {
@@ -76,7 +88,8 @@ export function DemoProvider({ children }) {
     setWeights,
     setStatus,
     markAnalyzed,
-    dismissGuide,
+    setIntroDone,
+    decide,
     updatePrep,
     reset,
   };

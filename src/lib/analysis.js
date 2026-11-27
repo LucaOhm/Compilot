@@ -50,8 +50,8 @@ export function getDocuments(comp) {
   return tpl.map(([name, format, basePages], i) => ({
     name,
     format,
-    pages: basePages ? basePages + ((h >> i) % 17) : null,
-    size: `${((((h >> (i + 3)) % 90) + 8) / 10).toLocaleString('de-DE')} MB`,
+    pages: basePages ? basePages + ((h >>> i) % 17) : null,
+    size: `${((((h >>> (i + 3)) % 90) + 8) / 10).toLocaleString('de-DE')} MB`,
   }));
 }
 
@@ -110,18 +110,16 @@ export function buildAnalysis(comp, evaluation) {
 }
 
 function buildAction(comp, ev, milestones) {
+  // Neutrale Zusammenfassung – die Entscheidung trifft das Büro.
   const next = milestones.find((m) => !m.past);
+  const r = ev.chance.range;
   if (ev.knockout) {
-    return 'Nicht teilnehmen. Die Mindestanforderungen können mit dem aktuellen Büroprofil nicht nachgewiesen werden. Den Wettbewerb ggf. als Hinweis für eine spätere ARGE-Partnerschaft vormerken.';
+    return `Formale Eignung derzeit nicht gegeben: ${comp.eligibility.note} Eine Teilnahme wäre nur über eine Arbeitsgemeinschaft oder Eignungsleihe denkbar.`;
   }
-  if (comp.eligibility?.status === 'risk') {
-    return `Teilnahme nur mit Partner sinnvoll. Bis ${next ? next.date : 'zur Frist'} klären, ob eine Arbeitsgemeinschaft die fehlenden Nachweise abdeckt – danach Entscheidung treffen.`;
-  }
-  if (ev.level === 'hoch') {
-    return `Teilnahme empfohlen. Nächster Schritt: ${next ? `${next.label} am ${next.date}` : 'Unterlagen vorbereiten'}. Referenzen „${ev.references[0].ref.title}“${ev.references[1] ? ` und „${ev.references[1].ref.title}“` : ''} als Nachweise vorbereiten.`;
-  }
-  if (ev.level === 'mittel') {
-    return `Im Team abwägen. Fachlich interessant, aber ${ev.cons[0] ? ev.cons[0].toLowerCase() : 'mit Einschränkungen'}. Entscheidung spätestens eine Woche vor ${next ? `„${next.label}“ (${next.date})` : 'Fristende'} treffen.`;
-  }
-  return 'Eher nicht teilnehmen. Kapazität besser in Wettbewerbe mit höherem Fit investieren.';
+  const parts = [
+    comp.eligibility?.status === 'risk' ? `Eignung mit Einschränkung (${comp.eligibility.note.replace(/\.$/, '')}).` : 'Formale Eignung gegeben.',
+    `Geschätzte Chance auf ${r.slotLabel}: ${r.low}–${r.high} %.`,
+    `Einsatz ca. ${comp.effortHours} Std.${next ? `, nächster Termin: ${next.label} am ${next.date}` : ''}.`,
+  ];
+  return parts.join(' ');
 }

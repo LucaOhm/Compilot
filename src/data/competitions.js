@@ -92,8 +92,8 @@ export const COMPETITIONS = [
       jury: 'Preisgericht: 5 Fach- und 4 Sachpreisrichter:innen, Vorsitz mit Schwerpunkt Holzbau, Schulleitung als Sachverständige.',
       levers: [
         ['Der Schulhof entscheidet', 'Freiraum ist mit 30 % das stärkste Kriterium. Ein klar gefasster Hof zwischen Bestand und Neubau ist der Hebel – nicht ein großes Volumen.'],
-        ['Holzbau als Haltung, nicht als Fassade', 'Das Preisgericht ist holzbaunah besetzt. Ein einfaches, rückbaubares Raster überzeugt – eure Aufstockung in Holz ist der Beleg.'],
-        ['Präzise statt aufwendig', 'Große Büros punkten mit Renderings. Ihr punktet mit einer klaren Idee auf zwei Plänen. Eine Perspektive reicht.'],
+        ['Holzbau als Haltung, nicht als Fassade', 'Das Preisgericht ist holzbaunah besetzt. Ein einfaches, rückbaubares Raster überzeugt – Ihre Aufstockung in Holz ist der Beleg.'],
+        ['Präzise statt aufwendig', 'Große Büros punkten mit Renderings. Sie punkten mit einer klaren Idee auf zwei Plänen. Eine Perspektive reicht.'],
       ],
       notToDo: ['Keine zweite Visualisierung, keine Animation', 'Keine Variantenuntersuchung im Plan – die Entscheidung fällt intern'],
     },
